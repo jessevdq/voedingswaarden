@@ -150,13 +150,14 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
     <div class="section-h" id="rec-h" hidden><h2>Recent bekeken</h2><button class="chip" id="rec-clear">wis</button></div>
     <ul class="list" id="rec-list" hidden></ul>
     <div class="empty" id="welcome"><b>Zoek een product</b>Typ een Nederlands, Vlaams of Engels woord. Tik op een product voor de waarden per portie.</div>
+    <p class="hint"><button class="chip" id="home-own">＋ Eigen product</button></p>
     <p class="hint">Tip: zoek op meerdere woorden, bv. <code>kip gebakken</code>, <code>brood volkoren</code> of <code>frieten</code>.</p>
   </div>
   <div id="results" hidden>
     <div class="section-h"><h2>Resultaten</h2><span id="count"></span></div>
     <ul class="list" id="res-list"></ul>
   </div>
-  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen en afbeeldingen zijn een eigen toevoeging en geen onderdeel van NEVO.</footer>
+  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen, iconen en de gerechten gemarkeerd als niet-NEVO (berekend uit recept of andere bron) zijn eigen toevoegingen en geen onderdeel van NEVO.</footer>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -164,17 +165,25 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
+<script src="extra.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let favs=store.get('favs',[]), recents=store.get('recents',[]), userSyn=store.get('syn',{}), photos=store.get('photos',{}), portions=store.get('portions',{});
+let own=store.get('own',[]);
 let state={q:'',bereid:false,group:'',fav:false,current:null,grams:100};
+const OWN_SRC='Eigen product';
+if(typeof EXTRA!=='undefined'){EXTRA.forEach(e=>FOODS.push(e)); Object.entries(EXTRA_SYN).forEach(([c,s])=>{const f=FOODS.find(x=>x.c==c);if(f)f.f=(f.f?f.f+' ':'')+s});}
+function addOwnToFoods(){FOODS=FOODS.filter(f=>f.src!==OWN_SRC);own.forEach(o=>FOODS.push(o));}
+FOODS=FOODS.slice(); addOwnToFoods();
+const ABBR={m:'met',z:'zonder',v:'van',gem:'gemiddeld',ca:'circa',obv:'op basis van',hoh:'half-om-half',kh:'koolhydraat',vb:'volkorenbrood',bev:'bevroren',gek:'gekookt',geb:'gebakken'};
+const expand=n=>n.split(' ').map(w=>ABBR[w.toLowerCase()]||w).join(' ');
 $('#ver').textContent=NEVO_VERSION;
 
 const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
 // precompute haystacks
-const BY={}; FOODS.forEach(f=>{BY[f.c]=f; f._n=norm(f.n); f._all=norm([f.n,f.s,f.f,f.x,f.e].join(' '));});
+let BY={}; function index(){BY={};FOODS.forEach(f=>{BY[f.c]=f; f._n=norm(f.n); f._all=norm([f.n,f.s,f.f,f.x,f.e,String(f.c)].join(' ')); f._sw=f.s?norm(f.s).split(' '):null;});} index();
 const hay=f=>f._all+' '+norm((userSyn[f.c]||[]).join(' '));
 const isBereid=f=>/bereid|gekookt|gebakken|gefrituurd|gegrild|gestoomd|gebraden|geroosterd|gestoofd|gepocheerd|oven/.test(f._n)&&!/onbereid|rauw/.test(f._n);
 
@@ -193,6 +202,7 @@ function search(q){
       let best=0;
       if(f._n===t) best=100; else if(f._n.startsWith(t+' ')||f._n.startsWith(t)) best=60;
       else if(f._n.split(' ').some(w=>w===t)) best=40;
+      else if(f._sw&&f._sw.some(w=>w===t)) best=35;
       else if(f._n.split(' ').some(w=>w.startsWith(t))) best=25;
       else if(hw.some(w=>w===t)) best=20;
       else if(hw.some(w=>w.startsWith(t))) best=10;
@@ -211,7 +221,7 @@ function filterOnly(){ // when no query but filters active
 const fmt=(v,d=1)=>v==null?'–':(Math.round(v*10**d)/10**d).toLocaleString('nl-BE',{maximumFractionDigits:d});
 function tile(f,cls){ const p=photos[f.c]; return `<span class="tile ${cls||''}">${p?`<img src="${p}" alt="">`:f.i}</span>`; }
 function rowHTML(f){
-  return `<li><button class="row" data-c="${f.c}">${tile(f)}<span class="t"><span class="name">${favs.includes(f.c)?'★ ':''}${esc(f.n)}</span><span class="sub">${esc(f.s||f.e)}</span>
+  return `<li><button class="row" data-c="${f.c}">${tile(f)}<span class="t"><span class="name">${favs.includes(f.c)?'★ ':''}${esc(f.n)}</span><span class="sub">${f.src?'<b style="color:var(--accent)">'+(f.src===OWN_SRC?'eigen':'niet-NEVO')+'</b> · ':''}${esc(f.s||f.e)}</span>
   <span class="macros"><span class="P">E ${fmt(f.p)}</span><span class="C">K ${fmt(f.cho)}</span><span class="F">V ${fmt(f.fat)}</span></span></span>
   <span class="kcal"><b>${fmt(f.kcal,0)}</b><small>kcal/100${f.u}</small></span></button></li>`;
 }
@@ -246,7 +256,7 @@ function drawSheet(){
   const flem=f.f?f.f.split(' ').filter(Boolean):[];
   const v=x=>x==null?null:x*k;
   $('#sheet-inner').innerHTML=`<div class="grab"></div>
-  <div class="head">${tile(f)}<div><h2>${esc(f.n)}</h2><div class="meta"><span>${esc(f.g)}</span><span>NEVO ${f.c}</span>${f.e?`<span>${esc(f.e)}</span>`:''}</div></div></div>
+  <div class="head">${tile(f)}<div><h2>${esc(f.n)}</h2><div class="meta">${expand(f.n)!==f.n?`<div style="margin-bottom:3px">= ${esc(expand(f.n))}</div>`:''}<span>${esc(f.g)}</span><span>${f.src?esc(f.src):'NEVO '+f.c}</span>${f.e?`<span>${esc(f.e)}</span>`:''}</div></div></div>
   <div class="actions">
     <button class="btn" id="b-fav" aria-pressed="${fav}">${fav?'★ Favoriet':'☆ Favoriet'}</button>
     <label class="btn" for="photo">📷 Foto kiezen</label><input id="photo" type="file" accept="image/*" hidden>
@@ -254,7 +264,7 @@ function drawSheet(){
     <button class="btn" id="b-copy">Kopieer waarden</button>
   </div>
   <div class="portion"><label for="grams">Portie</label><input id="grams" type="number" inputmode="decimal" min="0" step="1" value="${g}"><span style="color:var(--muted)">${f.u}</span>
-    <div class="presets">${[25,50,100,150,200,250].map(p=>`<button data-g="${p}" aria-pressed="${p===g}">${p}</button>`).join('')}</div></div>
+    <div class="presets">${(f.u==='ml'?[100,150,200,250,330,500]:[25,50,100,150,200,250]).map(p=>`<button data-g="${p}" aria-pressed="${p===g}">${p}</button>`).join('')}</div></div>
   <div class="big">
     <div><b>${fmt(v(f.kcal),0)}</b><small>kcal</small></div>
     <div><b>${fmt(v(f.p))}</b><small>eiwit g</small></div>
@@ -270,6 +280,8 @@ function drawSheet(){
     ${f.alc?`<tr><td>Alcohol</td><td>${fmt(v(f.alc))} g</td></tr>`:''}
     <tr><td>Water</td><td>${fmt(v(f.w),0)} g</td></tr>
   </table>
+  ${f.note?`<p class="note" style="margin-top:12px">${esc(f.note)}${f.recipe?`<br><span style="opacity:.8">Berekening: ${esc(f.recipe)}</span>`:''}</p>`:''}
+  ${f.src===OWN_SRC?`<div class="actions" style="margin-top:10px"><button class="btn" id="b-delown">Eigen product verwijderen</button></div>`:''}
   <div class="synbox"><h3>Zoektermen</h3>
     <div class="tags">${nevoSyn.map(s=>`<span class="tag nevo" title="NEVO-synoniem">${esc(s)}</span>`).join('')}${flem.map(s=>`<span class="tag nevo" title="Vlaamse term">${esc(s)}</span>`).join('')}
     ${mine.map((s,i)=>`<span class="tag">${esc(s)}<button data-del="${i}" aria-label="verwijder">×</button></span>`).join('')}</div>
@@ -279,7 +291,8 @@ function drawSheet(){
   $('#b-fav').onclick=()=>{favs=fav?favs.filter(x=>x!==f.c):[f.c,...favs];store.set('favs',favs);drawSheet()};
   $('#b-copy').onclick=()=>{const t=`${f.n} (${g} ${f.u}): ${fmt(v(f.kcal),0)} kcal, E ${fmt(v(f.p))} g, K ${fmt(v(f.cho))} g, V ${fmt(v(f.fat))} g`;
     (navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast('Gekopieerd'),()=>toast(t));};
-  $('#grams').oninput=e=>{state.grams=parseFloat(e.target.value)||0;portions[f.c]=state.grams;store.set('portions',portions);const a=document.activeElement;drawSheet();const i=$('#grams');i.focus();i.value=e.target.value;};
+  $('#grams').oninput=e=>{state.grams=parseFloat(e.target.value)||0;portions[f.c]=state.grams;store.set('portions',portions);updateNumbers(f)};
+  const dl=$('#b-delown'); if(dl) dl.onclick=()=>{own=own.filter(o=>o.c!==f.c);store.set('own',own);addOwnToFoods();index();close();toast('Verwijderd')};
   document.querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{state.grams=+b.dataset.g;portions[f.c]=state.grams;store.set('portions',portions);drawSheet()});
   $('#synform').onsubmit=e=>{e.preventDefault();const s=$('#syninput').value.trim();if(!s)return;userSyn[f.c]=[...mine,s];store.set('syn',userSyn);drawSheet();toast('Synoniem toegevoegd')};
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{mine.splice(+b.dataset.del,1);userSyn[f.c]=mine;store.set('syn',userSyn);drawSheet()});
@@ -290,20 +303,51 @@ function drawSheet(){
   const np=$('#b-nophoto'); if(np) np.onclick=()=>{delete photos[f.c];store.set('photos',photos);drawSheet()};
 }
 
+function updateNumbers(f){const k=state.grams/100,v=x=>x==null?null:x*k;
+  const b=document.querySelectorAll('.big b'); if(b.length<4) return;
+  b[0].textContent=fmt(v(f.kcal),0);b[1].textContent=fmt(v(f.p));b[2].textContent=fmt(v(f.cho));b[3].textContent=fmt(v(f.fat));
+  const td=document.querySelectorAll('table td:last-child'); const vals=[fmt(v(f.kj),0)+' kJ',fmt(v(f.sug))+' g',fmt(v(f.sat))+' g',fmt(v(f.fib))+' g',null];
+  td.forEach((c,i)=>{if(vals[i])c.textContent=vals[i]});
+  const na=[...td].find(c=>/zout/.test(c.textContent)); if(na) na.innerHTML=`${fmt(v(f.na),0)} mg <span style="color:var(--muted)">(≈ ${fmt(v(f.na)*2.5/1000,2)} g zout)</span>`;
+  document.querySelectorAll('.presets button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.g===state.grams));
+  const w=[...document.querySelectorAll('table td')].find(c=>c.textContent==='Water'); if(w) w.nextElementSibling.textContent=fmt(v(f.w),0)+' g';}
+
+// own product form
+function openOwn(){
+  state.current=null;
+  const F=(id,l,ph,t='number')=>`<label style="display:block;font-size:12.5px;color:var(--muted);margin-top:8px">${l}<input id="${id}" type="${t}" ${t==='number'?'inputmode="decimal" step="any" min="0"':''} placeholder="${ph}" style="display:block;width:100%;margin-top:3px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:inherit"></label>`;
+  $('#sheet-inner').innerHTML=`<div class="grab"></div><h2 style="font:600 19px var(--display);margin:0 0 4px">Eigen product</h2>
+  <p class="note" style="margin:0">Waarden per 100 g (of 100 ml). Wordt op dit toestel bewaard en meegezocht.</p>
+  <form id="ownform">${F('o-n','Naam','bv. Pistolet bakker Koksijde','text')}${F('o-s','Zoektermen (optioneel)','bv. broodje, sandwich','text')}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 10px">${F('o-kcal','kcal','')}${F('o-p','Eiwit g','')}${F('o-cho','Koolhydraten g','')}${F('o-fat','Vet g','')}${F('o-sat','waarvan verzadigd g (optioneel)','')}${F('o-sug','waarvan suikers g (optioneel)','')}${F('o-fib','Vezels g (optioneel)','')}${F('o-g','Standaardportie g (optioneel)','')}</div>
+  <label style="display:block;font-size:12.5px;color:var(--muted);margin-top:8px">Eenheid <select id="o-u" style="margin-left:6px"><option value="g">per 100 g</option><option value="ml">per 100 ml</option></select></label>
+  <div class="actions"><button class="btn primary" type="submit">Bewaren</button></div></form>`;
+  $('#ownform').onsubmit=e=>{e.preventDefault();const g=id=>{const v=parseFloat($(id).value);return isNaN(v)?null:v};const n=$('#o-n').value.trim();
+    if(!n||g('#o-kcal')==null){toast('Naam en kcal zijn verplicht');return}
+    const c=800000+Date.now()%100000+Math.floor(Math.random()*9);
+    const kcal=g('#o-kcal'),p=g('#o-p')||0,cho=g('#o-cho')||0,fat=g('#o-fat')||0;
+    const o={c,g:'Eigen producten',n,e:'',s:$('#o-s').value.trim().split(',').map(s=>s.trim()).filter(Boolean).join('/'),f:'',x:'',u:$('#o-u').value,i:'📝',src:OWN_SRC,
+      kcal,kj:Math.round(kcal*4.184),p,fat,sat:g('#o-sat'),cho,sug:g('#o-sug'),fib:g('#o-fib'),alc:0,na:null,w:null};
+    own.push(o);store.set('own',own);const pg=g('#o-g');if(pg){portions[c]=pg;store.set('portions',portions)}
+    addOwnToFoods();index();close();toast('Bewaard');open(c)};
+  $('#scrim').hidden=false;$('#sheet').hidden=false;requestAnimationFrame(()=>{$('#scrim').classList.add('on');$('#sheet').classList.add('on')});
+}
+
 // settings sheet: export / import personal data
 function openSettings(){
   state.current=null;
-  const data=JSON.stringify({favs,syn:userSyn,portions,photos});
+  const data=JSON.stringify({favs,syn:userSyn,portions,photos,own});
   $('#sheet-inner').innerHTML=`<div class="grab"></div><h2 style="font:600 19px var(--display);margin:0 0 6px">Instellingen</h2>
   <p class="note" style="margin:0 0 10px">Favorieten, eigen synoniemen, porties en foto's staan alleen op dit toestel. Kopieer de tekst hieronder om ze naar een ander toestel over te zetten, of plak een eerdere kopie en kies Importeren.</p>
   <textarea id="io">${esc(data)}</textarea>
-  <div class="actions"><button class="btn primary" id="io-copy">Kopieer</button><button class="btn" id="io-import">Importeren</button><button class="btn" id="io-reset">Alles wissen</button></div>
+  <div class="actions"><button class="btn primary" id="io-own">＋ Eigen product</button><button class="btn" id="io-copy">Kopieer</button><button class="btn" id="io-import">Importeren</button><button class="btn" id="io-reset">Alles wissen</button></div>
   <p class="note">Zo zet je de app op je beginscherm: iPhone → Safari → Delen → <b>Zet op beginscherm</b>. Android → Chrome → menu ⋮ → <b>Toevoegen aan startscherm</b>.</p>
   <p class="note">${FOODS.length} producten · ${NEVO_VERSION}</p>`;
+  $('#io-own').onclick=openOwn;
   $('#io-copy').onclick=()=>{(navigator.clipboard?.writeText($('#io').value)||Promise.reject()).then(()=>toast('Gekopieerd'),()=>{$('#io').select();toast('Selecteer en kopieer handmatig')})};
-  $('#io-import').onclick=()=>{try{const d=JSON.parse($('#io').value);favs=d.favs||[];userSyn=d.syn||{};portions=d.portions||{};photos=d.photos||{};
+  $('#io-import').onclick=()=>{try{const d=JSON.parse($('#io').value);favs=d.favs||[];userSyn=d.syn||{};portions=d.portions||{};photos=d.photos||{};own=d.own||[];store.set('own',own);addOwnToFoods();index();
     store.set('favs',favs);store.set('syn',userSyn);store.set('portions',portions);store.set('photos',photos);toast('Geïmporteerd');close()}catch(e){toast('Ongeldige tekst')}};
-  $('#io-reset').onclick=()=>{if($('#io-reset').dataset.sure){favs=[];userSyn={};portions={};photos={};recents=[];['favs','syn','portions','photos','recents'].forEach(k=>store.set(k,k==='syn'||k==='portions'||k==='photos'?{}:[]));toast('Gewist');close()}else{$('#io-reset').dataset.sure=1;$('#io-reset').textContent='Zeker? Tik nogmaals'}};
+  $('#io-reset').onclick=()=>{if($('#io-reset').dataset.sure){favs=[];userSyn={};portions={};photos={};recents=[];own=[];['favs','syn','portions','photos','recents','own'].forEach(k=>store.set(k,k==='syn'||k==='portions'||k==='photos'?{}:[]));addOwnToFoods();index();toast('Gewist');close()}else{$('#io-reset').dataset.sure=1;$('#io-reset').textContent='Zeker? Tik nogmaals'}};
   $('#scrim').hidden=false;$('#sheet').hidden=false;requestAnimationFrame(()=>{$('#scrim').classList.add('on');$('#sheet').classList.add('on')});
 }
 
@@ -317,6 +361,7 @@ $('#f-fav').onclick=e=>{state.fav=!state.fav;e.currentTarget.setAttribute('aria-
 $('#f-group').onchange=e=>{state.group=e.target.value;render()};
 $('#rec-clear').onclick=()=>{recents=[];store.set('recents',recents);render()};
 $('#settings').onclick=openSettings;
+$('#home-own').onclick=openOwn;
 document.addEventListener('click',e=>{const r=e.target.closest('.row');if(r)open(+r.dataset.c)});
 $('#scrim').onclick=close;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)close()});
