@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.1 — 2026-10-25
+- Versienummer onderaan de pagina.
+
 ## v2 — 2026-10-25
 - Belgische gerechten die NEVO niet heeft (gemarkeerd als niet-NEVO, bron zichtbaar in de app): stoofvlees op Vlaamse wijze, vol-au-vent, garnaalkroket gefrituurd, croque monsieur, witloof met hesp in kaassaus, balletjes in tomatensaus, frikadellen met krieken, mitraillette.
 - Extra Vlaamse zoektermen (stoemp, rijsttaart, préparé, boke, koffiekoek, frikadel, dreupel, …), ook op bestaande NEVO-producten.
