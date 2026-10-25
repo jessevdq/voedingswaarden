@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.4 — 2026-10-26
+- Standaardporties uit Nubel (Maten en gewichten) als knoppen: per stuk, snede, potje, spie, ... voor alle Nubel-producten en de NEVO-producten met een Nubel-tegenhanger (pistolet, plattekaas, americain, croissant, chocoladekoek, suisse, hachee).
+- Iconen herschreven: per voedingsgroep en op het begin van de naam (geen 🍦 meer bij radijs, geen 🍗 bij eieren, enz.).
+- Dubbele zoektermen in de detailweergave verwijderd.
+
 ## v2.3.1 — 2026-10-26
 - Achtje = koffiekoek met vanillecrème (Nubel 13051). Koffiekoek met chocolade en crème apart (Nubel 18606).
 

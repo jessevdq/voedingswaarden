@@ -1,6 +1,7 @@
 import csv, json, re, sys, unicodedata
 sys.path.insert(0, "/home/claude/nevo-app")
 from synonyms import RULES
+import icons as ICONS
 
 SRC = "/mnt/user-data/attachments/89ab58b2-0e20-598a-8f96-e199b6c3262f/d4050bd4-NEVO2025_v9.0.csv"
 
@@ -216,7 +217,7 @@ for r in rows:
         "c": int(r["NEVO-code"]), "g": group, "n": name, "e": en, "s": syn,
         "f": " ".join(sorted(fl)), "x": expanded if expanded != n else "",
         "u": "ml" if "ml" in r["Hoeveelheid/Quantity"] else "g",
-        "i": icon_for(n + " " + s, group),
+        "i": ICONS.icon_for(n, group),
         "kcal": num(r["ENERCC (kcal)"]), "kj": num(r["ENERCJ (kJ)"]),
         "p": num(r["PROT (g)"]), "fat": num(r["FAT (g)"]), "sat": num(r["FASAT (g)"]),
         "cho": num(r["CHO (g)"]), "sug": num(r["SUGAR (g)"]), "fib": num(r["FIBT (g)"]),

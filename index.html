@@ -104,6 +104,11 @@ footer a{color:inherit}
 .presets{display:flex;gap:6px;flex-wrap:wrap}
 .presets button{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:var(--mono)}
 .presets button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.stdp{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 6px}
+.stdp button{border:1px solid var(--line);border-radius:10px;padding:7px 11px;text-align:left;display:flex;flex-direction:column;gap:1px;background:var(--surface)}
+.stdp button b{font-weight:600;font-size:13px}
+.stdp button span{font:12px var(--mono);color:var(--muted)}
+.stdp button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
 .big{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .big div{background:var(--bg);border-radius:12px;padding:10px 10px 8px;border-top:3px solid var(--line)}
 .big div:nth-child(1){border-top-color:var(--kcal)} .big div:nth-child(2){border-top-color:var(--p)} .big div:nth-child(3){border-top-color:var(--cho)} .big div:nth-child(4){border-top-color:var(--fat)}
@@ -157,7 +162,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
     <div class="section-h"><h2>Resultaten</h2><span id="count"></span></div>
     <ul class="list" id="res-list"></ul>
   </div>
-  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen, iconen en de gerechten gemarkeerd als niet-NEVO (berekend uit recept of andere bron) zijn eigen toevoegingen en geen onderdeel van NEVO.<div style="margin-top:8px;font-family:var(--mono);font-size:11px;opacity:.75">Voedingswaarden v2.3.1 · 26 okt 2026</div></footer>
+  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen, iconen en de gerechten gemarkeerd als niet-NEVO (berekend uit recept of andere bron) zijn eigen toevoegingen en geen onderdeel van NEVO.<div style="margin-top:8px;font-family:var(--mono);font-size:11px;opacity:.75">Voedingswaarden v2.4 · 26 okt 2026</div></footer>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -174,7 +179,7 @@ let favs=store.get('favs',[]), recents=store.get('recents',[]), userSyn=store.ge
 let own=store.get('own',[]);
 let state={q:'',bereid:false,group:'',fav:false,current:null,grams:100};
 const OWN_SRC='Eigen product';
-if(typeof EXTRA!=='undefined'){EXTRA.forEach(e=>FOODS.push(e)); if(typeof EXTRA_LABEL!=='undefined') Object.entries(EXTRA_LABEL).forEach(([c,l])=>{const f=FOODS.find(x=>x.c==c);if(f)f.lab=l}); Object.entries(EXTRA_SYN).forEach(([c,s])=>{const f=FOODS.find(x=>x.c==c);if(f)f.f=(f.f?f.f+' ':'')+s});}
+if(typeof EXTRA!=='undefined'){EXTRA.forEach(e=>FOODS.push(e)); if(typeof EXTRA_PORTIONS!=='undefined') Object.entries(EXTRA_PORTIONS).forEach(([c,l])=>{const f=FOODS.find(x=>x.c==c);if(f)f.ps=l}); if(typeof EXTRA_LABEL!=='undefined') Object.entries(EXTRA_LABEL).forEach(([c,l])=>{const f=FOODS.find(x=>x.c==c);if(f)f.lab=l}); Object.entries(EXTRA_SYN).forEach(([c,s])=>{const f=FOODS.find(x=>x.c==c);if(f)f.f=(f.f?f.f+' ':'')+s});}
 function addOwnToFoods(){FOODS=FOODS.filter(f=>f.src!==OWN_SRC);own.forEach(o=>FOODS.push(o));}
 FOODS=FOODS.slice(); addOwnToFoods();
 const ABBR={m:'met',z:'zonder',v:'van',gem:'gemiddeld',ca:'circa',obv:'op basis van',hoh:'half-om-half',kh:'koolhydraat',vb:'volkorenbrood',bev:'bevroren',gek:'gekookt',geb:'gebakken'};
@@ -245,7 +250,7 @@ function renderHome(){
 
 // detail sheet
 function open(c){
-  const f=BY[c]; if(!f) return; state.current=c; state.grams=portions[c]||f.portion||100;
+  const f=BY[c]; if(!f) return; state.current=c; state.grams=portions[c]||(f.ps&&f.ps[0][1])||f.portion||100;
   recents=[c,...recents.filter(x=>x!==c)].slice(0,12); store.set('recents',recents);
   drawSheet(); $('#scrim').hidden=false; $('#sheet').hidden=false; requestAnimationFrame(()=>{$('#scrim').classList.add('on');$('#sheet').classList.add('on')});
 }
@@ -253,7 +258,7 @@ function close(){ $('#scrim').classList.remove('on');$('#sheet').classList.remov
 function drawSheet(){
   const f=BY[state.current], g=state.grams, k=g/100, fav=favs.includes(f.c), mine=userSyn[f.c]||[];
   const nevoSyn=f.s?f.s.split('/').map(s=>s.trim()).filter(Boolean):[];
-  const flem=f.f?f.f.split(' ').filter(Boolean):[];
+  const _seen=new Set(nevoSyn.map(x=>norm(x)));const flem=(f.f?f.f.split(' ').filter(Boolean):[]).filter(w=>{const k=norm(w);if(_seen.has(k)||norm(f.n).split(' ').includes(k))return false;_seen.add(k);return true});
   const v=x=>x==null?null:x*k;
   $('#sheet-inner').innerHTML=`<div class="grab"></div>
   <div class="head">${tile(f)}<div>${f.lab?`<div class="meta" style="font-weight:600;color:var(--accent);margin-bottom:2px">${esc(f.lab)}</div>`:''}<h2>${esc(f.n)}</h2><div class="meta">${expand(f.n)!==f.n?`<div style="margin-bottom:3px">= ${esc(expand(f.n))}</div>`:''}<span>${esc(f.g)}</span><span>${f.src?esc(f.src):'NEVO '+f.c}</span>${f.e?`<span>${esc(f.e)}</span>`:''}</div></div></div>
@@ -263,6 +268,7 @@ function drawSheet(){
     ${photos[f.c]?'<button class="btn" id="b-nophoto">Foto wissen</button>':''}
     <button class="btn" id="b-copy">Kopieer waarden</button>
   </div>
+  ${f.ps?`<div class="stdp">${f.ps.map(([l,gr])=>`<button data-g="${gr}" aria-pressed="${gr===g}"><b>${esc(l)}</b><span>${gr} ${f.u}</span></button>`).join('')}</div>`:''}
   <div class="portion"><label for="grams">Portie</label><input id="grams" type="number" inputmode="decimal" min="0" step="1" value="${g}"><span style="color:var(--muted)">${f.u}</span>
     <div class="presets">${(f.u==='ml'?[100,150,200,250,330,500]:[25,50,100,150,200,250]).map(p=>`<button data-g="${p}" aria-pressed="${p===g}">${p}</button>`).join('')}</div></div>
   <div class="big">
@@ -293,7 +299,7 @@ function drawSheet(){
     (navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast('Gekopieerd'),()=>toast(t));};
   $('#grams').oninput=e=>{state.grams=parseFloat(e.target.value)||0;portions[f.c]=state.grams;store.set('portions',portions);updateNumbers(f)};
   const dl=$('#b-delown'); if(dl) dl.onclick=()=>{own=own.filter(o=>o.c!==f.c);store.set('own',own);addOwnToFoods();index();close();toast('Verwijderd')};
-  document.querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{state.grams=+b.dataset.g;portions[f.c]=state.grams;store.set('portions',portions);drawSheet()});
+  document.querySelectorAll('.presets button,.stdp button').forEach(b=>b.onclick=()=>{state.grams=+b.dataset.g;portions[f.c]=state.grams;store.set('portions',portions);drawSheet()});
   $('#synform').onsubmit=e=>{e.preventDefault();const s=$('#syninput').value.trim();if(!s)return;userSyn[f.c]=[...mine,s];store.set('syn',userSyn);drawSheet();toast('Synoniem toegevoegd')};
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{mine.splice(+b.dataset.del,1);userSyn[f.c]=mine;store.set('syn',userSyn);drawSheet()});
   $('#photo').onchange=e=>{const file=e.target.files[0];if(!file)return;const img=new Image();const url=URL.createObjectURL(file);
@@ -309,7 +315,7 @@ function updateNumbers(f){const k=state.grams/100,v=x=>x==null?null:x*k;
   const td=document.querySelectorAll('table td:last-child'); const vals=[fmt(v(f.kj),0)+' kJ',fmt(v(f.sug))+' g',fmt(v(f.sat))+' g',fmt(v(f.fib))+' g',null];
   td.forEach((c,i)=>{if(vals[i])c.textContent=vals[i]});
   const na=[...td].find(c=>/zout/.test(c.textContent)); if(na) na.innerHTML=`${fmt(v(f.na),0)} mg <span style="color:var(--muted)">(≈ ${fmt(v(f.na)*2.5/1000,2)} g zout)</span>`;
-  document.querySelectorAll('.presets button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.g===state.grams));
+  document.querySelectorAll('.presets button,.stdp button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.g===state.grams));
   const w=[...document.querySelectorAll('table td')].find(c=>c.textContent==='Water'); if(w) w.nextElementSibling.textContent=fmt(v(f.w),0)+' g';}
 
 // own product form

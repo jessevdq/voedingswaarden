@@ -178,7 +178,7 @@ add(900033, "Frangipane", "Gebak en koek", "🥧", nb(432, 4.7, 56.8, 20.1, sat=
 add(900034, "Frangipanetaart", "Gebak en koek", "🥧", nb(495, 2.5, 45.4, 32.6, sat=12.17, sug=31.2, fib=4.6, salt=0.7, w=12),
     NUBEL + " · generiek product 4267 (taart, frangipane)", "Grote frangipanetaart, per spie (≈ 100 g).",
     syn="Frangipanetaart", flem="frangipanetaart frangipane taart", en="Frangipane tart", portion=100)
-add(900035, "Carré confituur", "Gebak en koek", "🟧",
+add(900035, "Carré confituur", "Gebak en koek", "🍪",
     avg(nb(364, 3.4, 51.9, 15.3, 7.8, 30.3, 2.7, 0.68, 25), nb(338, 4.9, 40, 17, 10, 31, 1.7, 0.42, 35),
         nb(415, 4.0, 55, 18, 10, 23, 1.3, 1.08, 14), nb(413, 4.0, 61.4, 16.1, 8.2, 32, 3.0, 0.58, 14)),
     NUBEL + " · gemiddelde van 4 merken (Lidl, Delhaize, Lotus, Belgix)", "Zandgebak met confituur. Bakkerijversie (≈ 75 g) zit rond 350 kcal/100 g, verpakte koekjes (≈ 35 g) rond 415.",
@@ -192,6 +192,36 @@ add(900045, "Koffiekoek chocotwist / chocoladevlecht", "Gebak en koek", "🍫",
     syn="Chocotwist/Chocoladevlecht", flem="chocotwist twist chocoladevlecht vlecht koffiekoek chocolade hazelnoot", en="Chocolate twist pastry", portion=90)
 
 EXTRA_SYN = {}
+# Standard portions from Nubel "Maten en gewichten" (Hoge Gezondheidsraad). [label, grams]. "schatting" = Nubel gives none.
+EXTRA_PORTIONS = {
+    900002: [["klein", 100], ["middel", 250], ["groot", 400]],
+    900006: [["portie", 250], ["grote portie", 333]],
+    900007: [["portie (schatting)", 250]],
+    900030: [["1 croque (schatting)", 150]],
+    900014: [["1 kroket", 45]],
+    900003: [["1 kroket", 55]],
+    900015: [["1 cervela", 140]],
+    900040: [["portie", 100], ["1 pens", 150]],
+    900041: [["portie", 100], ["1 pens", 150]],
+    900042: [["1 snede", 50], ["beleg 1 boterham", 30]],
+    900043: [["1 sandwich", 40]],
+    900044: [["1 potje", 115], ["portie", 140]],
+    900036: [["1 stuk", 80]], 900021: [["1 stuk", 84]], 900037: [["1 stuk", 85]], 900038: [["1 stuk", 90]],
+    900039: [["1 stuk", 60]], 900045: [["1 stuk", 93]],
+    900022: [["1 stuk", 120]], 900031: [["1 eclair", 90]],
+    900033: [["industrieel", 60], ["warme bakker", 80], ["spie", 100]],
+    900034: [["1 spie", 100]],
+    900035: [["bakkerij", 75], ["verpakt", 35]],
+    # NEVO products, weights from the matching Nubel generic
+    2795: [["pistolet groot (9–10 cm)", 45], ["pistolet klein (6–7 cm)", 25]],
+    2796: [["pistolet groot (9–10 cm)", 45], ["pistolet klein (6–7 cm)", 30]],
+    305: [["potje klein", 100], ["potje middel", 125], ["potje groot", 150], ["eetlepel", 25]],
+    306: [["potje klein", 100], ["potje middel", 125], ["potje groot", 150], ["eetlepel", 25]],
+    307: [["potje klein", 100], ["potje middel", 125], ["potje groot", 150], ["eetlepel", 25]],
+    810: [["op 1 boterham", 15], ["dik belegd", 20], ["op een stokbrood", 75]],
+    2818: [["1 croissant", 60]], 2801: [["1 croissant", 60]], 2802: [["1 croissant", 60]],
+    2400: [["1 stuk", 60]], 232: [["1 stuk", 100]], 5329: [["portie", 160]],
+}
 # Labels shown above the name for NEVO products, so koffiekoeken are recognisable as such without changing NEVO's names.
 EXTRA_LABEL = {
     2400: "Koffiekoek · chocoladebroodje / pain au chocolat",
@@ -200,7 +230,7 @@ EXTRA_LABEL = {
     250: "Koffiekoek · amandelcroissant",
     5240: "Koffiekoek · flap / gozet (bladerdeeg met fruit)", 2560: "Koffiekoek · flap / gozet (bladerdeeg met fruit)", 3060: "Koffiekoek · flap / gozet (bladerdeeg met fruit)",
 }
-out = "const EXTRA=" + json.dumps(items, ensure_ascii=False, separators=(",", ":")) + ";\nconst EXTRA_SYN=" + json.dumps(EXTRA_SYN) + ";\nconst EXTRA_LABEL=" + json.dumps(EXTRA_LABEL, ensure_ascii=False) + ";\n"
+out = "const EXTRA=" + json.dumps(items, ensure_ascii=False, separators=(",", ":")) + ";\nconst EXTRA_SYN=" + json.dumps(EXTRA_SYN) + ";\nconst EXTRA_PORTIONS=" + json.dumps(EXTRA_PORTIONS, ensure_ascii=False) + ";\nconst EXTRA_LABEL=" + json.dumps(EXTRA_LABEL, ensure_ascii=False) + ";\n"
 open("/home/claude/nevo-app/extra.js", "w", encoding="utf-8").write(out)
 for i in items:
     print(i["c"], i["n"], "|", i["kcal"], "kcal  E", i["p"], " K", i["cho"], " V", i["fat"], "| portie", i["portion"], "g →", round(i["kcal"] * i["portion"] / 100), "kcal")
