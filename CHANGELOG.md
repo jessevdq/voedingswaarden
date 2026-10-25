@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.3.1 — 2026-10-26
+- Achtje = koffiekoek met vanillecrème (Nubel 13051). Koffiekoek met chocolade en crème apart (Nubel 18606).
+
 ## v2.3 — 2026-10-26
 - Zoektermen herschreven: ~110 precieze regels op het begin van de NEVO-naam, in plaats van losse trefwoorden die op verkeerde producten belandden (pistolet op koffiebroodje, kieken op eieren, stoemp op tomatenpuree, ...).
 - Nagekeken met Nubel (internubel.be). Dubbels van NEVO verwijderd: stoofvlees (→ Hachee), witloof met hesp (→ NEVO witlof m ham en kaas), lange suisse (→ Broodje koffie-).

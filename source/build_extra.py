@@ -150,13 +150,12 @@ add(900044, "Rijstpap", "Melk en melkproducten", "🍚",
     syn="Rijstpap/Riz au lait", flem="rijstpap riz au lait", en="Rice pudding", portion=125)
 
 # ---------- Bakkerij ----------
-add(900036, "Koffiekoek met pudding", "Gebak en koek", "🥐", nb(378, 6.1, 47.6, 17.5, sat=8.51, sug=33.7, fib=2.9, salt=0.51, w=24),
-    NUBEL + " · generiek product 13051 (koffiekoek met vanillecrème)", "Koffiekoek met banketbakkersroom, zonder rozijnen. Met rozijnen = suisse (NEVO 'Broodje koffie-'). Eén stuk ≈ 80 g.",
-    syn="Puddingkoek/Koffiekoek met vanillecrème", flem="koffiekoek pudding puddingkoek vanillecreme", en="Danish with custard", portion=80)
-add(900021, "Koffiekoek met chocolade en crème (achtje)", "Gebak en koek", "🍫",
-    avg(nb(315, 6.5, 38.1, 15, 8, 12.2, 1.4, 1.1, 38), nb(280, 5.4, 37, 12, 5.8, 15, 1.1, 0.82, 43), nb(381, 7.2, 40.4, 21.2, None, None, None, None, 30)),
-    NUBEL + " · gemiddelde van 3 merken (Delhaize chocolade en crème, Carrefour achtkoek, Bake Off chocolade en vanille)", "Koffiekoek met chocolade en banketbakkersroom. Eén stuk ≈ 95 g.",
-    syn="Achtje/Achtkoek/Koffiekoek met chocolade en pudding", flem="achtje achtkoek koffiekoek chocolade creme pudding vanille", en="Danish with chocolate and custard", portion=95)
+add(900036, "Koffiekoek met vanillecrème (achtje)", "Gebak en koek", "🥐", nb(378, 6.1, 47.6, 17.5, sat=8.51, sug=33.7, fib=2.9, salt=0.51, w=24),
+    NUBEL + " · generiek product 13051 (koffiekoek met vanillecrème)", "Achtje: koffiekoek met banketbakkersroom (pudding), zonder chocolade en zonder rozijnen. Met rozijnen = suisse (NEVO 'Broodje koffie-'). Eén stuk ≈ 80 g.",
+    syn="Achtje/Achtkoek/Puddingkoek/Koffiekoek met pudding", flem="achtje achtkoek koffiekoek pudding puddingkoek vanillecreme vanille", en="Danish with custard", portion=80)
+add(900021, "Koffiekoek met chocolade en crème", "Gebak en koek", "🍫", nb(381, 7.2, 40.4, 21.2, w=30),
+    NUBEL + " · product 18606 (Bake Off, Lidl)", "Koffiekoek met chocolade en vanillecrème. Eén merk in Nubel; geen generieke waarde beschikbaar. Eén stuk ≈ 84 g.",
+    syn="Koffiekoek met chocolade en vanille/Koffiekoek met chocolade en pudding", flem="koffiekoek chocolade creme pudding vanille", en="Danish with chocolate and custard", portion=84)
 add(900037, "Koffiekoek met boter en rozijnen, zonder pudding (rozijnenkoek)", "Gebak en koek", "🥐", nb(426, 9.2, 39.4, 23.8, sat=16.68, sug=10.8, fib=8.7, salt=0.66, w=17),
     NUBEL + " · generiek product 13050", "Boterdeeg (croissantdeeg) met rozijnen, zonder pudding. Brands in Nubel (405–440) bevestigen. Let op: met pudding = suisse (NEVO 'Broodje koffie-', ±320–350). Eén stuk ≈ 85 g.",
     syn="Rozijnenkoek/Boterkoek met rozijnen", flem="rozijnenkoek koffiekoek rozijnen boterkoek", en="Raisin butter pastry", portion=85)
