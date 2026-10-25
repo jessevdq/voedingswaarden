@@ -1,4 +1,6 @@
-import csv, json, re, unicodedata
+import csv, json, re, sys, unicodedata
+sys.path.insert(0, "/home/claude/nevo-app")
+from synonyms import RULES
 
 SRC = "/mnt/user-data/attachments/89ab58b2-0e20-598a-8f96-e199b6c3262f/d4050bd4-NEVO2025_v9.0.csv"
 
@@ -206,16 +208,10 @@ for r in rows:
     # expand abbreviations
     expanded = " ".join(ABBR.get(w, w) for w in n.split())
     fl = set()
-    hay = " " + n + " " + s + " "
-    for k, v in FLEMISH.items():
-        kk, _, grp = k.partition("@")
-        if grp and group != grp:
-            continue
-        if re.search(r"\b" + re.escape(kk) + r"\b", hay):
-            fl.update(v.split())
-    if group == "Brood" and "brood" in n and "broodje" not in n:
-        fl.update(["boke", "boterham", "boterhammen"])
-    fl -= set(hay.split())
+    for pat, syns in RULES:
+        if re.search(pat, n):
+            fl.update(syns.split())
+    fl -= set((n + " " + s).split())
     item = {
         "c": int(r["NEVO-code"]), "g": group, "n": name, "e": en, "s": syn,
         "f": " ".join(sorted(fl)), "x": expanded if expanded != n else "",

@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.3 — 2026-10-26
+- Zoektermen herschreven: ~110 precieze regels op het begin van de NEVO-naam, in plaats van losse trefwoorden die op verkeerde producten belandden (pistolet op koffiebroodje, kieken op eieren, stoemp op tomatenpuree, ...).
+- Nagekeken met Nubel (internubel.be). Dubbels van NEVO verwijderd: stoofvlees (→ Hachee), witloof met hesp (→ NEVO witlof m ham en kaas), lange suisse (→ Broodje koffie-).
+- Waarden vervangen door Nubel: vol-au-vent, balletjes in tomatensaus, gehaktballetjes met krieken, achtje, mattentaart, kaaskroket, garnaalkroket, cervela.
+- Nieuw uit Nubel: croque monsieur, eclair, frangipane, frangipanetaart, carré confituur, witte en zwarte pens, kipkap, sandwich, rijstpap, en koffiekoeken (met pudding; met chocolade en crème; met boter en rozijnen zonder pudding; met pudding en fruit; boterkoek; chocotwist/vlecht).
+- Koffiekoeken herkenbaar gelabeld, ook de NEVO-producten (chocoladebroodje / pain au chocolat, suisse, croissant, flap/gozet, amandelcroissant).
+
 ## v2.2 — 2026-10-26
 - Synoniemen nagekeken: foute koppelingen weg (leverkaas≠kipkap, plattekaas≠cottage cheese, bicky≠hamburger), "boke" alleen op brood, spuitwater/plat water op mineraalwater.
 - Croque monsieur was een dubbel van NEVO "Tosti ham-kaas": verwijderd, nu synoniem.

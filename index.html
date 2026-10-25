@@ -157,7 +157,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
     <div class="section-h"><h2>Resultaten</h2><span id="count"></span></div>
     <ul class="list" id="res-list"></ul>
   </div>
-  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen, iconen en de gerechten gemarkeerd als niet-NEVO (berekend uit recept of andere bron) zijn eigen toevoegingen en geen onderdeel van NEVO.<div style="margin-top:8px;font-family:var(--mono);font-size:11px;opacity:.75">Voedingswaarden v2.2 · 26 okt 2026</div></footer>
+  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen, iconen en de gerechten gemarkeerd als niet-NEVO (berekend uit recept of andere bron) zijn eigen toevoegingen en geen onderdeel van NEVO.<div style="margin-top:8px;font-family:var(--mono);font-size:11px;opacity:.75">Voedingswaarden v2.3 · 26 okt 2026</div></footer>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -174,7 +174,7 @@ let favs=store.get('favs',[]), recents=store.get('recents',[]), userSyn=store.ge
 let own=store.get('own',[]);
 let state={q:'',bereid:false,group:'',fav:false,current:null,grams:100};
 const OWN_SRC='Eigen product';
-if(typeof EXTRA!=='undefined'){EXTRA.forEach(e=>FOODS.push(e)); Object.entries(EXTRA_SYN).forEach(([c,s])=>{const f=FOODS.find(x=>x.c==c);if(f)f.f=(f.f?f.f+' ':'')+s});}
+if(typeof EXTRA!=='undefined'){EXTRA.forEach(e=>FOODS.push(e)); if(typeof EXTRA_LABEL!=='undefined') Object.entries(EXTRA_LABEL).forEach(([c,l])=>{const f=FOODS.find(x=>x.c==c);if(f)f.lab=l}); Object.entries(EXTRA_SYN).forEach(([c,s])=>{const f=FOODS.find(x=>x.c==c);if(f)f.f=(f.f?f.f+' ':'')+s});}
 function addOwnToFoods(){FOODS=FOODS.filter(f=>f.src!==OWN_SRC);own.forEach(o=>FOODS.push(o));}
 FOODS=FOODS.slice(); addOwnToFoods();
 const ABBR={m:'met',z:'zonder',v:'van',gem:'gemiddeld',ca:'circa',obv:'op basis van',hoh:'half-om-half',kh:'koolhydraat',vb:'volkorenbrood',bev:'bevroren',gek:'gekookt',geb:'gebakken'};
@@ -183,7 +183,7 @@ $('#ver').textContent=NEVO_VERSION;
 
 const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
 // precompute haystacks
-let BY={}; function index(){BY={};FOODS.forEach(f=>{BY[f.c]=f; f._n=norm(f.n); f._all=norm([f.n,f.s,f.f,f.x,f.e,String(f.c)].join(' ')); f._sw=f.s?norm(f.s).split(' '):null;});} index();
+let BY={}; function index(){BY={};FOODS.forEach(f=>{BY[f.c]=f; f._n=norm(f.n); f._all=norm([f.n,f.s,f.f,f.x,f.e,f.lab||'',String(f.c)].join(' ')); f._sw=f.s?norm(f.s).split(' '):null;});} index();
 const hay=f=>f._all+' '+norm((userSyn[f.c]||[]).join(' '));
 const isBereid=f=>/bereid|gekookt|gebakken|gefrituurd|gegrild|gestoomd|gebraden|geroosterd|gestoofd|gepocheerd|oven/.test(f._n)&&!/onbereid|rauw/.test(f._n);
 
@@ -221,7 +221,7 @@ function filterOnly(){ // when no query but filters active
 const fmt=(v,d=1)=>v==null?'–':(Math.round(v*10**d)/10**d).toLocaleString('nl-BE',{maximumFractionDigits:d});
 function tile(f,cls){ const p=photos[f.c]; return `<span class="tile ${cls||''}">${p?`<img src="${p}" alt="">`:f.i}</span>`; }
 function rowHTML(f){
-  return `<li><button class="row" data-c="${f.c}">${tile(f)}<span class="t"><span class="name">${favs.includes(f.c)?'★ ':''}${esc(f.n)}</span><span class="sub">${f.src?'<b style="color:var(--accent)">'+(f.src===OWN_SRC?'eigen':'niet-NEVO')+'</b> · ':''}${esc(f.s||f.e)}</span>
+  return `<li><button class="row" data-c="${f.c}">${tile(f)}<span class="t"><span class="name">${favs.includes(f.c)?'★ ':''}${esc(f.n)}</span><span class="sub">${f.lab?'<b style="color:var(--fg)">'+esc(f.lab)+'</b> · ':''}${f.src?'<b style="color:var(--accent)">'+(f.src===OWN_SRC?'eigen':'niet-NEVO')+'</b> · ':''}${esc(f.s||f.e)}</span>
   <span class="macros"><span class="P">E ${fmt(f.p)}</span><span class="C">K ${fmt(f.cho)}</span><span class="F">V ${fmt(f.fat)}</span></span></span>
   <span class="kcal"><b>${fmt(f.kcal,0)}</b><small>kcal/100${f.u}</small></span></button></li>`;
 }
@@ -256,7 +256,7 @@ function drawSheet(){
   const flem=f.f?f.f.split(' ').filter(Boolean):[];
   const v=x=>x==null?null:x*k;
   $('#sheet-inner').innerHTML=`<div class="grab"></div>
-  <div class="head">${tile(f)}<div><h2>${esc(f.n)}</h2><div class="meta">${expand(f.n)!==f.n?`<div style="margin-bottom:3px">= ${esc(expand(f.n))}</div>`:''}<span>${esc(f.g)}</span><span>${f.src?esc(f.src):'NEVO '+f.c}</span>${f.e?`<span>${esc(f.e)}</span>`:''}</div></div></div>
+  <div class="head">${tile(f)}<div>${f.lab?`<div class="meta" style="font-weight:600;color:var(--accent);margin-bottom:2px">${esc(f.lab)}</div>`:''}<h2>${esc(f.n)}</h2><div class="meta">${expand(f.n)!==f.n?`<div style="margin-bottom:3px">= ${esc(expand(f.n))}</div>`:''}<span>${esc(f.g)}</span><span>${f.src?esc(f.src):'NEVO '+f.c}</span>${f.e?`<span>${esc(f.e)}</span>`:''}</div></div></div>
   <div class="actions">
     <button class="btn" id="b-fav" aria-pressed="${fav}">${fav?'★ Favoriet':'☆ Favoriet'}</button>
     <label class="btn" for="photo">📷 Foto kiezen</label><input id="photo" type="file" accept="image/*" hidden>
