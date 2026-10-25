@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.2 — 2026-10-26
+- Synoniemen nagekeken: foute koppelingen weg (leverkaas≠kipkap, plattekaas≠cottage cheese, bicky≠hamburger), "boke" alleen op brood, spuitwater/plat water op mineraalwater.
+- Croque monsieur was een dubbel van NEVO "Tosti ham-kaas": verwijderd, nu synoniem.
+- Frituur (gefrituurd, met bron): Bicky Burger compleet én alleen de burger, mexicano, lucifer, kaaskroket, garnaalkroket, cervela (Belgische verse worst, ≠ NL cervelaatworst), viandel. Boulet, berenpoot, kipcorn, curryworst → synoniemen op bestaande NEVO-snacks.
+- Bakkerij (met bron): lange suisse, koffiekoek met chocolade en pudding (achtje), mattentaart. Ronde suisse/rozijnenkoek, chocoladekoek, appelkoek, rijsttaartje, boule de Berlin, cramique, craquelin → synoniemen op bestaande NEVO-producten.
+- Niet-NEVO producten openen met een realistische standaardportie (1 stuk, 1 bord).
+
 ## v2.1 — 2026-10-25
 - Versienummer onderaan de pagina.
 

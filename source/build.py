@@ -46,15 +46,15 @@ FLEMISH = {
     "kipnuggets": "nuggets", "shoarma": "pita pitta", "doner": "pita pitta kebab", "kebab": "pitta",
     "hachee": "stoverij stoofvlees", "stoofvlees": "stoverij stoofvlees vlaamse stoverij", "riblappen": "stoofvlees stoverij", "sukadelappen": "stoofvlees stoverij", "runderlappen": "stoofvlees", "rookworst": "worst",
     "worst": "worst saucisse", "braadworst": "saucisse worst", "knakworst": "worstje knakworst",
-    "balkenbrij": "", "filet americain": "americain preparé filet americain", "ossenworst": "americain",
-    "gelderse": "", "leverworst": "leverworst leverpastei", "pate": "paté pastei", "pastei": "paté",
+    "filet americain": "americain preparé filet americain", "ossenworst": "americain",
+    "leverworst": "leverworst leverpastei", "pate": "paté pastei", "pastei": "paté",
     "salami": "salami", "cervelaat": "cervela", "boterhamworst": "lunchworst", "kipfilet beleg": "kippenwit",
     "vis": "vis", "kabeljauw": "kabeljauw", "koolvis": "koolvis", "zalm": "zalm", "tonijn": "tonijn",
     "garnalen": "garnalen grijze garnalen scampi", "mosselen": "mosselen", "kibbeling": "visnuggets gefrituurde vis",
     "lekkerbekje": "gebakken vis", "haring": "haring maatjes", "makreel": "makreel", "paling": "paling",
     "ei": "ei eieren", "eieren": "ei",
     "melk": "melk", "karnemelk": "botermelk", "chocolademelk": "chocomelk chocolademelk cecemel",
-    "vla": "pudding vla", "kwark": "plattekaas platte kaas", "hüttenkäse": "cottage cheese plattekaas",
+    "vla": "pudding vla", "kwark": "plattekaas platte kaas", "hüttenkäse": "cottage cheese",
     "slagroom": "room slagroom", "room": "room",
     "yoghurt": "yoghurt yogurt", "pap": "pap", "havermoutpap": "havermoutpap porridge",
     "kaas": "kaas", "smeerkaas": "smeerkaas", "jonge": "jonge kaas", "belegen": "belegen kaas",
@@ -85,7 +85,7 @@ FLEMISH = {
     "cola": "cola", "limonade": "limonade frisdrank", "frisdrank": "frisdrank", "ranja": "siroop grenadine",
     "sinas": "orangeade fanta", "ijsthee": "ice tea ijsthee", "sportdrank": "sportdrank isotone drank",
     "energiedrank": "energy drink energiedrank", "koffie": "koffie", "thee": "thee", "water": "water",
-    "mineraalwater": "spuitwater bruiswater plat water", "spa": "spuitwater bruiswater",
+    "mineraalwater": "plat water spuitwater bruiswater",
     "sap": "fruitsap sap", "appelsap": "appelsap", "smoothie": "smoothie",
     "ijs": "ijs roomijs crème glace", "roomijs": "roomijs crème glace", "waterijs": "ijsje",
     "pinda": "pinda arachide", "pindas": "pindanoten", "noten": "noten", "amandelen": "amandelen", "walnoten": "walnoten",
@@ -103,22 +103,23 @@ FLEMISH = {
     "gyros": "pitta", "pizza": "pizza", "lasagne": "lasagne", "wrap": "wrap durum", "durum": "durum",
     "hamburgerbroodje": "hamburgerbroodje", "friet": "frieten",
 
-    "boterham": "boterham boke boterhammen", "sandwich": "sandwich smos", "koffiebroodje": "koffiekoek", "chocoladebroodje": "koffiekoek chocoladekoek",
-    "bloedworst": "pens bloedworst beuling", "leverkaas": "kipkap", "hoofdkaas": "kipkap tete pressee", "zult": "kipkap kop",
-    "jenever": "dreupel jenever", "curryworst": "curryworst", "frikandel": "frikadel curryworst", "hamburger": "bicky hamburger",
+    "boterham@Brood": "boke boterhammen", "sandwich": "sandwich smos", "koffiebroodje": "koffiekoek ronde suisse rozijnenkoek", "chocoladebroodje": "koffiekoek chocoladekoek",
+    "bloedworst": "pens bloedworst beuling", "hoofdkaas": "kipkap tete pressee", "zult": "kipkap kop",
+    "jenever": "dreupel jenever", "curryworst": "curryworst", "frikandel": "frikadel curryworst", 
     "vleeskroket": "kroket", "kaas": "kaas", "kaasplank": "kaas",
     "pannenkoek": "pannenkoek", "flensjes": "pannenkoekjes crepes", "wafel": "wafel gaufre", "suikerwafel": "brusselse wafel",
     "appelsap": "appelsap", "jus d orange": "appelsiensap fruitsap", "sinaasappelsap": "appelsiensap fruitsap",
     "koffiemelk": "koffiemelk", "roomboter": "boter", "cottage": "plattekaas", "kwark": "plattekaas platte kaas",
     "limonade": "limonade", "cola": "cola", "ranja": "grenadine siroop", "water": "water plat water", "bruisend": "spuitwater bruiswater",
-    "koolzuurhoudend": "spuitwater bruiswater", "mineraalwater": "spuitwater plat water",
-    "tompouce": "tompoes", "soes": "soesje", "eclair": "eclair", "mergpijpje": "", "bokkenpootje": "",
-    "rijstevlaai": "rijsttaart", "puddingbroodje": "koffiekoek", "worstenbroodje": "worstenbrood",
+    "koolzuurhoudend": "spuitwater bruiswater", 
+    "tompouce": "tompoes", "soes": "soesje", "eclair": "eclair", 
+    "rijstevlaai": "rijsttaart", "worstenbroodje": "worstenbrood",
     "peen": "wortel wortelen", "wortelen": "wortels", "bospeen": "wortelen", "spruitjes": "spruiten",
     "kipfilet": "kippenwit kippenfilet", "kippenbout": "kippenbil billetje", "kippenpoot": "kippenbil",
     "gebakken aardappelen": "gebakken patatten", "puree": "puree stoemp", "krieltjes": "krielpatatjes",
     "schnitzel": "schnitzel", "kalkoenfilet": "kalkoen", "varkenslapje": "varkenslapje",
     "tartaar": "tartaar", "ribeye": "ribeye", "entrecote": "entrecote cote a l os",
+    "kipkorn": "kipcorn", "berenklauw": "berenpoot",
     "sinaasappels": "appelsienen", "jus d'orange": "appelsiensap fruitsap",
 }
 
@@ -207,8 +208,13 @@ for r in rows:
     fl = set()
     hay = " " + n + " " + s + " "
     for k, v in FLEMISH.items():
-        if re.search(r"\b" + re.escape(k) + r"\b", hay):
+        kk, _, grp = k.partition("@")
+        if grp and group != grp:
+            continue
+        if re.search(r"\b" + re.escape(kk) + r"\b", hay):
             fl.update(v.split())
+    if group == "Brood" and "brood" in n and "broodje" not in n:
+        fl.update(["boke", "boterham", "boterhammen"])
     fl -= set(hay.split())
     item = {
         "c": int(r["NEVO-code"]), "g": group, "n": name, "e": en, "s": syn,
