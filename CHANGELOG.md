@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.5 — 2026-10-26
+- 10 exacte NEVO-dubbels verborgen (tomaat gewoon gekookt, spruitjes diepvries, nieuwe/oude aardappelen, 3 watersoorten, 2 zoutsoorten, 1-kops soeppoeder); hun naam blijft zoekbaar via het product dat overblijft.
+- Baby- en peutervoeding verborgen (70 producten). NEVO-waarden zelf ongewijzigd.
+
 ## v2.4 — 2026-10-26
 - Standaardporties uit Nubel (Maten en gewichten) als knoppen: per stuk, snede, potje, spie, ... voor alle Nubel-producten en de NEVO-producten met een Nubel-tegenhanger (pistolet, plattekaas, americain, croissant, chocoladekoek, suisse, hachee).
 - Iconen herschreven: per voedingsgroep en op het begin van de naam (geen 🍦 meer bij radijs, geen 🍗 bij eieren, enz.).

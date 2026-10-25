@@ -225,6 +225,18 @@ for r in rows:
     }
     out.append(item)
 
+# Hide exact duplicates (identical NEVO values) and the baby/toddler section. Values of kept rows stay unchanged;
+# the hidden row's name moves onto the kept row as a search term.
+HIDE = {61: 2735, 1147: 55, 2: 1, 3: 1, 598: 1885, 599: 1885, 600: 1885, 2819: 841, 5286: 841, 5305: 3352}
+BABY = re.compile(r"^(zuigelingenvoeding|opvolgmelk|dreumesmelk|peutermelk|peuterplusmelk|babyvoeding|kindervoeding|orisel|ontbijtproduct olvarit|biscuit baby|biscuit dreumes|pap nestle pyjamapapje|drink soja groeidrink)")
+byc = {o["c"]: o for o in out}
+for h, k in HIDE.items():
+    extra = norm(byc[h]["n"]).split()
+    have = set((norm(byc[k]["n"]) + " " + byc[k]["f"]).split())
+    byc[k]["f"] = " ".join(sorted(set(byc[k]["f"].split()) | {w for w in extra if w not in have and len(w) > 2 and not any(ch.isdigit() for ch in w) and w not in {"calcium", "liter", "kops", "toegevoegd", "jodium", "gekookt", "rauw"}}))
+hidden_baby = [o["n"] for o in out if BABY.search(norm(o["n"]))]
+out = [o for o in out if o["c"] not in HIDE and not BABY.search(norm(o["n"]))]
+print("hidden duplicates:", len(HIDE), "| hidden baby/toddler:", len(hidden_baby))
 groups = sorted({o["g"] for o in out})
 js = "let NEVO_VERSION='NEVO-online versie 2025/9.0, RIVM, Bilthoven';\nlet FOODS=" + json.dumps(out, ensure_ascii=False, separators=(",", ":")) + ";\n"
 open("/home/claude/nevo-app/data.js", "w", encoding="utf-8").write(js)
