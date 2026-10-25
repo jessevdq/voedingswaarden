@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Voedingswaarden</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Voedingswaarden">
+<meta name="theme-color" content="#1f6b3a">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+</head>
+<body>
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Layout: one-screen lookup tool. Sticky search on top, result list below, detail opens as a bottom sheet. */
+:root{
+  --bg:#f2f4f0; --surface:#ffffff; --surface-2:#e8ece6; --fg:#16211b; --muted:#66746b; --line:#d7ddd6;
+  --accent:#1f6b3a; --accent-fg:#ffffff; --accent-soft:#deeee2;
+  --p:#2c63b8; --cho:#c77a12; --fat:#b8405a; --kcal:#16211b;
+  --display:'Sora',system-ui,sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121715; --surface:#1b221e; --surface-2:#232c27; --fg:#eef2ee; --muted:#98a69c; --line:#2e3833;
+  --accent:#5fc585; --accent-fg:#0d1a12; --accent-soft:#1e3a29; --p:#7aa6ec; --cho:#e8a84a; --fat:#e8718a; --kcal:#eef2ee; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --surface:#1b221e; --surface-2:#232c27; --fg:#eef2ee; --muted:#98a69c; --line:#2e3833;
+  --accent:#5fc585; --accent-fg:#0d1a12; --accent-soft:#1e3a29; --p:#7aa6ec; --cho:#e8a84a; --fat:#e8718a; --kcal:#eef2ee; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px 8px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.brand h1{font:600 17px/1.2 var(--display);margin:0;letter-spacing:-.01em}
+.brand small{color:var(--muted);font-size:12px}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 8px 0 14px;height:46px}
+.search svg{flex:none;width:18px;height:18px;color:var(--muted)}
+.search input{flex:1;min-width:0;border:0;background:none;height:100%;font-size:16px;outline:none}
+.search input::placeholder{color:var(--muted)}
+.iconbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.iconbtn:hover{background:var(--surface-2)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
+select.chip{appearance:none;padding-right:24px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 13px) 50%,calc(100% - 9px) 50%;background-size:4px 4px;background-repeat:no-repeat;max-width:200px;text-overflow:ellipsis}
+main{padding-block:10px 40px}
+.section-h{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 6px}
+.section-h h2{font:600 12px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.section-h span{font-size:12px;color:var(--muted)}
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);width:100%;text-align:left}
+.list li:first-child .row{border-top:0}
+.row:hover{background:var(--surface-2)}
+.tile{width:44px;height:44px;border-radius:11px;background:var(--surface-2);display:grid;place-items:center;font-size:24px;overflow:hidden;line-height:1}
+.tile img{width:100%;height:100%;object-fit:cover}
+.row .t{min-width:0}
+.row .name{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sub{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .kcal{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.row .kcal b{font-size:16px;font-weight:500}
+.row .kcal small{display:block;font-size:10.5px;color:var(--muted);font-family:var(--body)}
+.macros{display:flex;gap:8px;font-size:11px;font-family:var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
+.macros i{font-style:normal;color:var(--muted)}
+.macros .P{color:var(--p)} .macros .C{color:var(--cho)} .macros .F{color:var(--fat)}
+.empty{color:var(--muted);text-align:center;padding:40px 16px;font-size:14px}
+.empty b{display:block;color:var(--fg);font-family:var(--display);font-weight:600;margin-bottom:4px}
+.hint{font-size:12.5px;color:var(--muted);margin:10px 2px 0}
+.hint code{font-family:var(--mono);font-size:11.5px;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+footer{color:var(--muted);font-size:11.5px;padding-block:20px 10px;line-height:1.5}
+footer a{color:inherit}
+
+/* Bottom sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.45);z-index:20;opacity:0;transition:opacity .2s}
+.scrim.on{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:20px 20px 0 0;max-height:92%;overflow:auto;
+  padding:8px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(0,0,0,.15)}
+.sheet.on{transform:none}
+@media (prefers-reduced-motion:reduce){.sheet,.scrim{transition:none}}
+.sheet .inner{max-width:720px;margin:0 auto}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 14px}
+.head{display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:start}
+.head .tile{width:72px;height:72px;border-radius:16px;font-size:40px;position:relative}
+.head h2{font:600 19px/1.25 var(--display);margin:0 0 4px;letter-spacing:-.01em;text-wrap:balance}
+.head .meta{font-size:12.5px;color:var(--muted)}
+.head .meta span{display:inline-block;margin-right:8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.portion{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.portion label{font-size:12.5px;color:var(--muted)}
+.portion input{width:92px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:var(--mono);font-size:16px;background:var(--bg)}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets button{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:var(--mono)}
+.presets button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.big{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.big div{background:var(--bg);border-radius:12px;padding:10px 10px 8px;border-top:3px solid var(--line)}
+.big div:nth-child(1){border-top-color:var(--kcal)} .big div:nth-child(2){border-top-color:var(--p)} .big div:nth-child(3){border-top-color:var(--cho)} .big div:nth-child(4){border-top-color:var(--fat)}
+.big b{display:block;font:500 20px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.big small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:380px){.big{grid-template-columns:repeat(2,1fr)}}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+td{padding:7px 0;border-top:1px solid var(--line)}
+td:last-child{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.sub{padding-left:14px;color:var(--muted)}
+.synbox{margin-top:14px;background:var(--bg);border-radius:12px;padding:12px}
+.synbox h3{font:600 12px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.tag{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:12.5px;display:inline-flex;gap:6px;align-items:center}
+.tag.nevo{border-style:dashed}
+.tag button{color:var(--muted);font-size:14px;line-height:1}
+.addsyn{display:flex;gap:6px}
+.addsyn input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface)}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:999px;font-size:13px;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:12px var(--mono);padding:8px}
+</style>
+
+<header><div class="wrap">
+  <div class="brand"><h1>Voedingswaarden</h1><small>NEVO 2025 · per 100 g</small></div>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Zoek: steak, frieten, ajuin, pistolet…" autocomplete="off" autocapitalize="off" enterkeyhint="search">
+    <button class="iconbtn" id="clear" aria-label="Wis zoekopdracht" hidden>✕</button>
+    <button class="iconbtn" id="settings" aria-label="Instellingen" title="Instellingen">⚙︎</button>
+  </div>
+  <div class="chips">
+    <button class="chip" id="f-bereid" aria-pressed="false">Alleen bereid / gekookt</button>
+    <select class="chip" id="f-group" aria-label="Voedingsmiddelgroep"><option value="">Alle groepen</option></select>
+    <button class="chip" id="f-fav" aria-pressed="false">★ Favorieten</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <div id="home">
+    <div class="section-h" id="fav-h" hidden><h2>Favorieten</h2></div>
+    <ul class="list" id="fav-list" hidden></ul>
+    <div class="section-h" id="rec-h" hidden><h2>Recent bekeken</h2><button class="chip" id="rec-clear">wis</button></div>
+    <ul class="list" id="rec-list" hidden></ul>
+    <div class="empty" id="welcome"><b>Zoek een product</b>Typ een Nederlands, Vlaams of Engels woord. Tik op een product voor de waarden per portie.</div>
+    <p class="hint">Tip: zoek op meerdere woorden, bv. <code>kip gebakken</code>, <code>brood volkoren</code> of <code>frieten</code>.</p>
+  </div>
+  <div id="results" hidden>
+    <div class="section-h"><h2>Resultaten</h2><span id="count"></span></div>
+    <ul class="list" id="res-list"></ul>
+  </div>
+  <footer>Bron: <span id="ver"></span>. Gegevens ongewijzigd overgenomen uit NEVO-online (RIVM). Vlaamse zoektermen en afbeeldingen zijn een eigen toevoeging en geen onderdeel van NEVO.</footer>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet" id="sheet" hidden role="dialog" aria-modal="true"><div class="inner" id="sheet-inner"></div></section>
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let favs=store.get('favs',[]), recents=store.get('recents',[]), userSyn=store.get('syn',{}), photos=store.get('photos',{}), portions=store.get('portions',{});
+let state={q:'',bereid:false,group:'',fav:false,current:null,grams:100};
+$('#ver').textContent=NEVO_VERSION;
+
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
+// precompute haystacks
+const BY={}; FOODS.forEach(f=>{BY[f.c]=f; f._n=norm(f.n); f._all=norm([f.n,f.s,f.f,f.x,f.e].join(' '));});
+const hay=f=>f._all+' '+norm((userSyn[f.c]||[]).join(' '));
+const isBereid=f=>/bereid|gekookt|gebakken|gefrituurd|gegrild|gestoomd|gebraden|geroosterd|gestoofd|gepocheerd|oven/.test(f._n)&&!/onbereid|rauw/.test(f._n);
+
+// groups
+const groups=[...new Set(FOODS.map(f=>f.g))].sort(); groups.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;$('#f-group').appendChild(o)});
+
+function search(q){
+  const toks=norm(q).split(' ').filter(Boolean); if(!toks.length) return [];
+  const out=[];
+  for(const f of FOODS){
+    if(state.group&&f.g!==state.group) continue;
+    if(state.bereid&&!isBereid(f)) continue;
+    if(state.fav&&!favs.includes(f.c)) continue;
+    const h=hay(f); const hw=h.split(' '); let score=0, ok=true;
+    for(const t of toks){
+      let best=0;
+      if(f._n===t) best=100; else if(f._n.startsWith(t+' ')||f._n.startsWith(t)) best=60;
+      else if(f._n.split(' ').some(w=>w===t)) best=40;
+      else if(f._n.split(' ').some(w=>w.startsWith(t))) best=25;
+      else if(hw.some(w=>w===t)) best=20;
+      else if(hw.some(w=>w.startsWith(t))) best=10;
+      else if(t.length>=4&&h.includes(t)) best=5;
+      if(!best){ok=false;break} score+=best;
+    }
+    if(!ok) continue;
+    score-= f._n.length/40; if(favs.includes(f.c)) score+=8; if(/\bgem\b|gemiddeld/.test(f._n)) score+=3;
+    out.push([score,f]);
+  }
+  return out.sort((a,b)=>b[0]-a[0]).slice(0,80).map(x=>x[1]);
+}
+function filterOnly(){ // when no query but filters active
+  return FOODS.filter(f=>(!state.group||f.g===state.group)&&(!state.bereid||isBereid(f))&&(!state.fav||favs.includes(f.c))).slice(0,120);
+}
+const fmt=(v,d=1)=>v==null?'–':(Math.round(v*10**d)/10**d).toLocaleString('nl-BE',{maximumFractionDigits:d});
+function tile(f,cls){ const p=photos[f.c]; return `<span class="tile ${cls||''}">${p?`<img src="${p}" alt="">`:f.i}</span>`; }
+function rowHTML(f){
+  return `<li><button class="row" data-c="${f.c}">${tile(f)}<span class="t"><span class="name">${favs.includes(f.c)?'★ ':''}${esc(f.n)}</span><span class="sub">${esc(f.s||f.e)}</span>
+  <span class="macros"><span class="P">E ${fmt(f.p)}</span><span class="C">K ${fmt(f.cho)}</span><span class="F">V ${fmt(f.fat)}</span></span></span>
+  <span class="kcal"><b>${fmt(f.kcal,0)}</b><small>kcal/100${f.u}</small></span></button></li>`;
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render(){
+  const q=state.q.trim(); const filt=state.group||state.bereid||state.fav;
+  $('#clear').hidden=!q;
+  if(!q&&!filt){ $('#results').hidden=true; $('#home').hidden=false; renderHome(); return; }
+  const res=q?search(q):filterOnly();
+  $('#home').hidden=true; $('#results').hidden=false;
+  $('#count').textContent=res.length?(res.length>=80?'80+ resultaten':res.length+' resultaten'):'';
+  $('#res-list').innerHTML=res.length?res.map(rowHTML).join(''):`<li><div class="empty"><b>Niets gevonden</b>Probeer een ander woord of voeg een synoniem toe aan een product.</div></li>`;
+}
+function renderHome(){
+  const fl=favs.map(c=>BY[c]).filter(Boolean), rl=recents.map(c=>BY[c]).filter(Boolean);
+  $('#fav-h').hidden=$('#fav-list').hidden=!fl.length; $('#fav-list').innerHTML=fl.map(rowHTML).join('');
+  $('#rec-h').hidden=$('#rec-list').hidden=!rl.length; $('#rec-list').innerHTML=rl.map(rowHTML).join('');
+  $('#welcome').hidden=!!(fl.length||rl.length);
+}
+
+// detail sheet
+function open(c){
+  const f=BY[c]; if(!f) return; state.current=c; state.grams=portions[c]||100;
+  recents=[c,...recents.filter(x=>x!==c)].slice(0,12); store.set('recents',recents);
+  drawSheet(); $('#scrim').hidden=false; $('#sheet').hidden=false; requestAnimationFrame(()=>{$('#scrim').classList.add('on');$('#sheet').classList.add('on')});
+}
+function close(){ $('#scrim').classList.remove('on');$('#sheet').classList.remove('on'); setTimeout(()=>{$('#scrim').hidden=true;$('#sheet').hidden=true;},250); render(); }
+function drawSheet(){
+  const f=BY[state.current], g=state.grams, k=g/100, fav=favs.includes(f.c), mine=userSyn[f.c]||[];
+  const nevoSyn=f.s?f.s.split('/').map(s=>s.trim()).filter(Boolean):[];
+  const flem=f.f?f.f.split(' ').filter(Boolean):[];
+  const v=x=>x==null?null:x*k;
+  $('#sheet-inner').innerHTML=`<div class="grab"></div>
+  <div class="head">${tile(f)}<div><h2>${esc(f.n)}</h2><div class="meta"><span>${esc(f.g)}</span><span>NEVO ${f.c}</span>${f.e?`<span>${esc(f.e)}</span>`:''}</div></div></div>
+  <div class="actions">
+    <button class="btn" id="b-fav" aria-pressed="${fav}">${fav?'★ Favoriet':'☆ Favoriet'}</button>
+    <label class="btn" for="photo">📷 Foto kiezen</label><input id="photo" type="file" accept="image/*" hidden>
+    ${photos[f.c]?'<button class="btn" id="b-nophoto">Foto wissen</button>':''}
+    <button class="btn" id="b-copy">Kopieer waarden</button>
+  </div>
+  <div class="portion"><label for="grams">Portie</label><input id="grams" type="number" inputmode="decimal" min="0" step="1" value="${g}"><span style="color:var(--muted)">${f.u}</span>
+    <div class="presets">${[25,50,100,150,200,250].map(p=>`<button data-g="${p}" aria-pressed="${p===g}">${p}</button>`).join('')}</div></div>
+  <div class="big">
+    <div><b>${fmt(v(f.kcal),0)}</b><small>kcal</small></div>
+    <div><b>${fmt(v(f.p))}</b><small>eiwit g</small></div>
+    <div><b>${fmt(v(f.cho))}</b><small>koolh. g</small></div>
+    <div><b>${fmt(v(f.fat))}</b><small>vet g</small></div>
+  </div>
+  <table>
+    <tr><td>Energie</td><td>${fmt(v(f.kj),0)} kJ</td></tr>
+    <tr><td class="sub">waarvan suikers</td><td>${fmt(v(f.sug))} g</td></tr>
+    <tr><td class="sub">waarvan verzadigd vet</td><td>${fmt(v(f.sat))} g</td></tr>
+    <tr><td>Vezels</td><td>${fmt(v(f.fib))} g</td></tr>
+    <tr><td>Natrium</td><td>${fmt(v(f.na),0)} mg <span style="color:var(--muted)">(≈ ${fmt(v(f.na)*2.5/1000,2)} g zout)</span></td></tr>
+    ${f.alc?`<tr><td>Alcohol</td><td>${fmt(v(f.alc))} g</td></tr>`:''}
+    <tr><td>Water</td><td>${fmt(v(f.w),0)} g</td></tr>
+  </table>
+  <div class="synbox"><h3>Zoektermen</h3>
+    <div class="tags">${nevoSyn.map(s=>`<span class="tag nevo" title="NEVO-synoniem">${esc(s)}</span>`).join('')}${flem.map(s=>`<span class="tag nevo" title="Vlaamse term">${esc(s)}</span>`).join('')}
+    ${mine.map((s,i)=>`<span class="tag">${esc(s)}<button data-del="${i}" aria-label="verwijder">×</button></span>`).join('')}</div>
+    <form class="addsyn" id="synform"><input id="syninput" placeholder="Eigen synoniem, bv. 'stoverij'" autocomplete="off"><button class="btn primary" type="submit">Toevoegen</button></form>
+    <div class="note">Gestippelde termen komen uit NEVO of de Vlaamse lijst. Eigen termen worden op dit toestel bewaard en meegezocht.</div>
+  </div>`;
+  $('#b-fav').onclick=()=>{favs=fav?favs.filter(x=>x!==f.c):[f.c,...favs];store.set('favs',favs);drawSheet()};
+  $('#b-copy').onclick=()=>{const t=`${f.n} (${g} ${f.u}): ${fmt(v(f.kcal),0)} kcal, E ${fmt(v(f.p))} g, K ${fmt(v(f.cho))} g, V ${fmt(v(f.fat))} g`;
+    (navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast('Gekopieerd'),()=>toast(t));};
+  $('#grams').oninput=e=>{state.grams=parseFloat(e.target.value)||0;portions[f.c]=state.grams;store.set('portions',portions);const a=document.activeElement;drawSheet();const i=$('#grams');i.focus();i.value=e.target.value;};
+  document.querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{state.grams=+b.dataset.g;portions[f.c]=state.grams;store.set('portions',portions);drawSheet()});
+  $('#synform').onsubmit=e=>{e.preventDefault();const s=$('#syninput').value.trim();if(!s)return;userSyn[f.c]=[...mine,s];store.set('syn',userSyn);drawSheet();toast('Synoniem toegevoegd')};
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{mine.splice(+b.dataset.del,1);userSyn[f.c]=mine;store.set('syn',userSyn);drawSheet()});
+  $('#photo').onchange=e=>{const file=e.target.files[0];if(!file)return;const img=new Image();const url=URL.createObjectURL(file);
+    img.onload=()=>{const S=160,cv=document.createElement('canvas');cv.width=cv.height=S;const x=cv.getContext('2d');const m=Math.min(img.width,img.height);
+      x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);photos[f.c]=cv.toDataURL('image/jpeg',.72);store.set('photos',photos);URL.revokeObjectURL(url);drawSheet();toast('Foto bewaard')};
+    img.src=url;};
+  const np=$('#b-nophoto'); if(np) np.onclick=()=>{delete photos[f.c];store.set('photos',photos);drawSheet()};
+}
+
+// settings sheet: export / import personal data
+function openSettings(){
+  state.current=null;
+  const data=JSON.stringify({favs,syn:userSyn,portions,photos});
+  $('#sheet-inner').innerHTML=`<div class="grab"></div><h2 style="font:600 19px var(--display);margin:0 0 6px">Instellingen</h2>
+  <p class="note" style="margin:0 0 10px">Favorieten, eigen synoniemen, porties en foto's staan alleen op dit toestel. Kopieer de tekst hieronder om ze naar een ander toestel over te zetten, of plak een eerdere kopie en kies Importeren.</p>
+  <textarea id="io">${esc(data)}</textarea>
+  <div class="actions"><button class="btn primary" id="io-copy">Kopieer</button><button class="btn" id="io-import">Importeren</button><button class="btn" id="io-reset">Alles wissen</button></div>
+  <p class="note">Zo zet je de app op je beginscherm: iPhone → Safari → Delen → <b>Zet op beginscherm</b>. Android → Chrome → menu ⋮ → <b>Toevoegen aan startscherm</b>.</p>
+  <p class="note">${FOODS.length} producten · ${NEVO_VERSION}</p>`;
+  $('#io-copy').onclick=()=>{(navigator.clipboard?.writeText($('#io').value)||Promise.reject()).then(()=>toast('Gekopieerd'),()=>{$('#io').select();toast('Selecteer en kopieer handmatig')})};
+  $('#io-import').onclick=()=>{try{const d=JSON.parse($('#io').value);favs=d.favs||[];userSyn=d.syn||{};portions=d.portions||{};photos=d.photos||{};
+    store.set('favs',favs);store.set('syn',userSyn);store.set('portions',portions);store.set('photos',photos);toast('Geïmporteerd');close()}catch(e){toast('Ongeldige tekst')}};
+  $('#io-reset').onclick=()=>{if($('#io-reset').dataset.sure){favs=[];userSyn={};portions={};photos={};recents=[];['favs','syn','portions','photos','recents'].forEach(k=>store.set(k,k==='syn'||k==='portions'||k==='photos'?{}:[]));toast('Gewist');close()}else{$('#io-reset').dataset.sure=1;$('#io-reset').textContent='Zeker? Tik nogmaals'}};
+  $('#scrim').hidden=false;$('#sheet').hidden=false;requestAnimationFrame(()=>{$('#scrim').classList.add('on');$('#sheet').classList.add('on')});
+}
+
+let tt; function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
+
+// events
+let deb; $('#q').addEventListener('input',e=>{state.q=e.target.value;clearTimeout(deb);deb=setTimeout(render,60)});
+$('#clear').onclick=()=>{$('#q').value='';state.q='';render();$('#q').focus()};
+$('#f-bereid').onclick=e=>{state.bereid=!state.bereid;e.currentTarget.setAttribute('aria-pressed',state.bereid);render()};
+$('#f-fav').onclick=e=>{state.fav=!state.fav;e.currentTarget.setAttribute('aria-pressed',state.fav);render()};
+$('#f-group').onchange=e=>{state.group=e.target.value;render()};
+$('#rec-clear').onclick=()=>{recents=[];store.set('recents',recents);render()};
+$('#settings').onclick=openSettings;
+document.addEventListener('click',e=>{const r=e.target.closest('.row');if(r)open(+r.dataset.c)});
+$('#scrim').onclick=close;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)close()});
+render();
+})();
+</script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");</script>
+</body>
+</html>
